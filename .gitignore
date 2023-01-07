@@ -1,0 +1,4 @@
+#Python cache should be ignored
+*__pycache__*
+
+*image-cache*
