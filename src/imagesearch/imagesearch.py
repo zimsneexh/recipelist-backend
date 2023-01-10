@@ -51,11 +51,11 @@ def run_search_query(keyword):
         ('v7exp', 'a'),
     )
 
-    res = requests.get(TARGET_REQ_API_URL, headers=HTTP_HEADERS, params=params)
     
     data = None
     while True:
         try:
+            res = requests.get(TARGET_REQ_API_URL, headers=HTTP_HEADERS, params=params)
             data = json.loads(res.text)
             break
         except json.decoder.JSONDecodeError:

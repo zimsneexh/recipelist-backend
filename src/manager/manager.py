@@ -5,4 +5,3 @@ class manager():
     def add_recipe_list(self, art):
         manager.recipe_list= art
 
-    # todo: drop? refresh?

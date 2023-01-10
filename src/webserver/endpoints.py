@@ -8,6 +8,7 @@ from webserver import webauth
 from webserver import webserver
 from webserver import usermanager
 from log import blog
+import main
 
 #
 # endpoint class with path and corresponding handler function
@@ -41,8 +42,8 @@ class webstatus(Enum):
 def register_get_endpoints():
     blog.debug("Registering get endpoints..")
     webserver.register_endpoint(endpoint("recipelist", get_recipe_list))
-    webserver.register_endpoint(endpoint("test", test_endpoint))
     webserver.register_endpoint(endpoint("", root_endpoint))
+    webserver.register_endpoint(endpoint("getimage", get_image))
 
 def register_post_endpoints():
     blog.debug("Registering post endpoints..")
@@ -144,8 +145,18 @@ def create_user_endpoint(httphandler, form_data, post_data):
 # gets a list of recipes
 #
 def get_recipe_list(httphandler, form_data):
-    httphandler.send_web_response(webstatus.SUCCESS, json.dumps([obj.get_info_dict() for obj in manager.manager.recipe_list]))
+    req_line = httphandler.headers._headers[0][1]
+    recipe_list = [ ]
 
+    for rp_o in manager.manager.recipe_list:
+        rp = rp_o.get_info_dict()
+
+        rp["imagelink"] =  "http://" + req_line + "/?getimage=" + rp["id"]
+        recipe_list.append(rp)
+
+
+    httphandler.send_web_response(webstatus.SUCCESS, recipe_list)
+    return
 #
 # / endpoint, returns html page
 #
@@ -160,17 +171,18 @@ def root_endpoint(httphandler, form_data):
     httphandler.wfile.write(bytes("</html>", "utf-8"))
 
 #
-# simple get-test endpoint
+# get an image
 #
-# ENDPOINT: /test (GET)
-def test_endpoint(httphandler, form_data):
-    httphandler.send_response(200)
-    httphandler.send_header("Content-type", "text/html")
-    print(httphandler.headers._headers[0][1])
-    httphandler.end_headers()
+def get_image(httphandler, form_data):
+    if(form_data["getimage"] == ""):
+        httphandler.send_web_response(webstatus.MISSING_DATA, "Missing request data: image id") 
+        return
 
-    httphandler.wfile.write(bytes("<html>", "utf-8"))
-    httphandler.wfile.write(bytes("<h1> Request acknowledged. </h1>", "utf-8"))
-    httphandler.wfile.write(bytes("<p> Request: {} </p>".format(form_data), "utf-8"))
-    httphandler.wfile.write(bytes("</html>", "utf-8"))
+    img_path = os.path.join(main.IMAGE_CACHE_DIR, "{}.jpg".format(form_data["getimage"]))
 
+    if(os.path.exists(img_path)):
+        with open(img_path, "rb") as f:
+            httphandler.send_file(f, os.path.getsize(img_path), "image.jpg")
+    else:
+        with open("no_result.jpg", "rb") as f:
+            httphandler.send_file(f, os.path.getsize("no_result.jpg"), "image.jpg")

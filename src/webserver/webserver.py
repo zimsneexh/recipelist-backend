@@ -42,7 +42,7 @@ class web_server(BaseHTTPRequestHandler):
     # send a file response to the current http handler
     def send_file(self, file, file_len, file_name):
         self.send_response(200)
-        self.send_header("Content-type", "application/octet-stream")
+        self.send_header("Content-type", "image/jpeg")
         self.send_header("Content-Length", file_len)
         self.send_header("Content-Disposition", "filename=\"" + file_name + "\"")
         self.end_headers()
