@@ -1,5 +1,6 @@
 import requests
 import re
+import time
 import json
 
 from log import blog
@@ -27,10 +28,18 @@ def run_search_query(keyword):
     }
 
     blog.debug("Sending HTTP request to Duckduckgo")
-    res = requests.post(TARGET_REQ_URL, data=req_param)
+    vqd = None
+    
+    while True:
+        res = requests.post(TARGET_REQ_URL, data=req_param)
+        vqd = re.search(r'vqd=([\d-]+)\&', res.text, re.M|re.I);
+        if(vqd is None):
+            blog.warn("DuckDuckGo rate limit reached. Waiting.")
+            time.sleep(25)
+        else:
+            break
 
-    vqd = re.search(r'vqd=([\d-]+)\&', res.text, re.M|re.I);
-    blog.debug("Request token obtained.")
+    blog.debug("Request token obtained: {}".format(vqd))
 
     params = (
         ('l', 'us-en'),
@@ -43,8 +52,17 @@ def run_search_query(keyword):
     )
 
     res = requests.get(TARGET_REQ_API_URL, headers=HTTP_HEADERS, params=params)
-    data = json.loads(res.text)
-    blog.debug("Request completed.")
-    print(data["results"])
-    return data["results"][0]["image"]
+    
+    data = None
+    while True:
+        try:
+            data = json.loads(res.text)
+            break
+        except json.decoder.JSONDecodeError:
+            blog.warn("DuckDuckGo rate limit reached. Waiting.")
+            time.sleep(25)
+
+
+    blog.debug("Search request completed.")
+    return data["results"]
     

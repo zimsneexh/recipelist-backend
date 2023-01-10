@@ -56,21 +56,36 @@ class article():
         pass
 
     def build_img_cache(self, cache_dir):
-        blog.info("Fetching image for {}..".format(self.id))
+        blog.info("Fetching image for {}..".format(self.title[self.languages[0]]))
         target_dir = os.path.join(cache_dir, self.id + ".jpg")
 
         if(os.path.exists(target_dir)):
             blog.warn("Skipped already existing file")
             return
 
-        image_url = imagesearch.run_search_query(self.title[self.languages[0]])
-
-        try:
-            web_rsp = requests.get(image_url, headers=HTTP_HEADERS)
-            with open(target_dir, "wb") as f:
-                f.write(web_rsp.content)
-        except Exception:
-            blog.error("Exception raised while attempting to fetch data")
+        search_results = imagesearch.run_search_query(self.title[self.languages[0]])
+        print(search_results)
+        if(search_results == [ ]):
+            blog.warn("No search results for {}..".format(self.title[self.languages[0]]))
             return
 
-        blog.info("Image fetched.")
+        i = 0
+        while True:
+            try:
+                if(len(search_results) < i):
+                    blog.warn("No search results for {}..".format(self.title[self.languages[0]]))
+                    break
+
+                blog.info("Attempting to fetch image at index {}..".format(i))
+                web_rsp = requests.get(search_results[i]["image"], headers=HTTP_HEADERS, timeout=10)
+                
+                with open(target_dir, "wb") as f:
+                    f.write(web_rsp.content)
+                break
+            except Exception as ex:
+                blog.error("Exception raised while attempting to fetch data. Using next image..")
+                blog.error("Exception details: {}".format(ex))
+                blog.error("Failed link: {}".format(search_results[i]["image"]))
+                i = i + 1
+
+        blog.info("Image fetched for {}.".format(self.id))
