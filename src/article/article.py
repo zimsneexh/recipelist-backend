@@ -20,15 +20,30 @@ class article():
 
     def __init__(self, json_obj):
         self.id = json_obj["Id"]
-        self.languages = json_obj["HasLanguage"]
+        
+        pre_commit_languages = json_obj["HasLanguage"]
+        self.languages = [ ]
+        
         self.api_url = json_obj["Self"]
         self.title = { }
         self.description = { }
+        
+        # ugly, because ODH returns completely broken datasets..
+        for lang in pre_commit_languages:
+            _title = json_obj["Detail"][lang].get("Title")
+            _description = json_obj["Detail"][lang].get("IntroText")
+            
+            #
+            # check if odh claims object provides lang,
+            # while it actually does not
+            #
+            if(_title is None or _title == ""):
+                blog.warn("{} claims to provide lang {}, but does not. ".format(self.id, lang))
+            else:
+                self.title[lang] = _title
+                self.description[lang] = _description
+                self.languages.append(lang)
 
-        for lang in self.languages:
-            self.title[lang] = json_obj["Detail"][lang].get("Title")
-            self.description[lang] = json_obj["Detail"][lang].get("IntroText")
-    
     def get_info_dict(self):
         return {
             "id": self.id,
