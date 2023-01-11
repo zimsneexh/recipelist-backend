@@ -44,6 +44,7 @@ def register_get_endpoints():
     webserver.register_endpoint(endpoint("recipelist", get_recipe_list))
     webserver.register_endpoint(endpoint("", root_endpoint))
     webserver.register_endpoint(endpoint("getimage", get_image))
+    webserver.register_endpoint(endpoint("getdetail", get_detail))
 
 def register_post_endpoints():
     blog.debug("Registering post endpoints..")
@@ -148,9 +149,8 @@ def get_recipe_list(httphandler, form_data):
     req_line = httphandler.headers._headers[0][1]
     recipe_list = [ ]
 
-    for rp_o in manager.manager.recipe_list:
-        rp = rp_o.get_info_dict()
-
+    for art in manager.manager.recipe_list:
+        rp = art.get_info_dict()
         rp["imagelink"] =  "http://" + req_line + "/?getimage=" + rp["id"]
         recipe_list.append(rp)
 
@@ -175,7 +175,7 @@ def root_endpoint(httphandler, form_data):
 #
 def get_image(httphandler, form_data):
     if(form_data["getimage"] == ""):
-        httphandler.send_web_response(webstatus.MISSING_DATA, "Missing request data: image id") 
+        httphandler.send_web_response(webstatus.MISSING_DATA, "Missing request data: article id") 
         return
 
     img_path = os.path.join(main.IMAGE_CACHE_DIR, "{}.jpg".format(form_data["getimage"]))
@@ -186,3 +186,22 @@ def get_image(httphandler, form_data):
     else:
         with open("no_result.jpg", "rb") as f:
             httphandler.send_file(f, os.path.getsize("no_result.jpg"), "image.jpg")
+
+
+#
+# get detail
+#
+def get_detail(httphandler, form_data):
+    if(form_data["getdetail"] == ""):
+        httphandler.send_web_response(webstatus.MISSING_DATA, "Missing request data: article id")
+        return
+
+    art = manager.manager().get_article_by_id(form_data["getdetail"]) 
+
+    # pass request to ODH
+    if(art is None):
+        httphandler.send_web_response(webstatus.MISSING_DATA, "No such article.")
+        return
+    
+    httphandler.send_web_response(webstatus.SUCCESS, art.fetch_details())
+
