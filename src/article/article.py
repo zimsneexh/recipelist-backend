@@ -1,11 +1,11 @@
 import requests
 import os
+import main
+import json
 
 from imagesearch import imagesearch
 from log import blog
-
-import main
-import json
+from dbconnect import database
 
 HTTP_HEADERS = {
     'authority': 'duckduckgo.com',

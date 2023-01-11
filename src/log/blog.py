@@ -11,6 +11,8 @@ ENDC = '\033[0m'
 BOLD = '\033[1m'
 UNDERLINE = '\033[4m'
 
+PRINT_DEBUG=False
+
 # used to determine if logger is running inside docker
 NO_TERM = True
 
@@ -66,6 +68,9 @@ def web_log(log):
         print("{}{:<8}{}{}{:<24}{} {}".format(BOLD, "[WEB]", ENDC, OKCYAN, module, ENDC, log))
 
 def debug(log):
+    if(not PRINT_DEBUG):
+        return
+
     global NO_TERM
 
     frame = inspect.stack()[1]

@@ -7,6 +7,7 @@ from manager import manager
 from webserver import webauth
 from webserver import webserver
 from webserver import usermanager
+from dbconnect import database
 from log import blog
 import main
 
@@ -52,6 +53,7 @@ def register_post_endpoints():
     webserver.register_post_endpoint(endpoint("checkauth", check_auth_endpoint))
     webserver.register_post_endpoint(endpoint("logoff", logoff_endpoint))
     webserver.register_post_endpoint(endpoint("createuser", create_user_endpoint))
+    webserver.register_post_endpoint(endpoint("addrating", add_rating))
 
 #
 # endpoint used to authenticate a user
@@ -113,16 +115,6 @@ def logoff_endpoint(httphandler, form_data, post_data):
 #
 # ENDPOINT /createuser (POST)
 def create_user_endpoint(httphandler, form_data, post_data):
-    if("authkey" not in post_data):
-        httphandler.send_web_response(webstatus.MISSING_DATA, "Missing request data for authentication.")
-        return
-
-    # check if logged in
-    if(not webauth.web_auth().validate_key(post_data["authkey"])):
-        httphandler.send_web_response(webstatus.AUTH_FAILURE, "Invalid authentication key.")
-        return
-
-
     if("cuser" not in post_data or "cpass" not in post_data):
         blog.debug("Missing request data for user creation")
         httphandler.send_web_response(webstatus.MISSING_DATA, "Missing request data for user creation.")
@@ -142,21 +134,22 @@ def create_user_endpoint(httphandler, form_data, post_data):
 
     httphandler.send_web_response(webstatus.SUCCESS, "User created.")
 
-#
-# gets a list of recipes
-#
-def get_recipe_list(httphandler, form_data):
-    req_line = httphandler.headers._headers[0][1]
-    recipe_list = [ ]
+def add_rating(httphandler, form_data, post_data):
+    if("authkey" not in post_data):
+        httphandler.send_web_response(webstatus.MISSING_DATA, "Missing request data for authentication.")
+        return
 
-    for art in manager.manager.recipe_list:
-        rp = art.get_info_dict()
-        rp["imagelink"] =  "http://" + req_line + "/?getimage=" + rp["id"]
-        recipe_list.append(rp)
+    if("id" not in post_data or "rating" not in post_data or "author" not in post_data):
+        httphandler.send_web_response(webstatus.MISSING_DATA, "Missing request data. Required: id, rating, author")
+        return
 
+    # check if logged in       
+    if(webauth.web_auth().validate_key(post_data["authkey"])):
+        database.add_rating(post_data["id"], post_data["author"], post_data["rating"])
+        httphandler.send_web_response(webstatus.SUCCESS, "Rating added to database.")
+    else:
+        httphandler.send_web_response(webstatus.AUTH_FAILURE, "Invalid authentication key.")
 
-    httphandler.send_web_response(webstatus.SUCCESS, recipe_list)
-    return
 #
 # / endpoint, returns html page
 #
@@ -204,4 +197,22 @@ def get_detail(httphandler, form_data):
         return
     
     httphandler.send_web_response(webstatus.SUCCESS, art.fetch_details())
+
+#
+# gets a list of recipes
+#
+def get_recipe_list(httphandler, form_data):
+    req_line = httphandler.headers._headers[0][1]
+    recipe_list = [ ]
+
+    for art in manager.manager.recipe_list:
+        rp = art.get_info_dict()
+        rp["imagelink"] =  "http://" + req_line + "/?getimage=" + rp["id"]
+        rp["avgrating"] = database.get_avg_by_id(art.id)
+        recipe_list.append(rp)
+
+
+    httphandler.send_web_response(webstatus.SUCCESS, recipe_list)
+    return
+
 

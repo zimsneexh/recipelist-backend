@@ -2,6 +2,8 @@ import requests
 import threading
 import json
 import os
+from queue import Queue
+from threading import Thread
 
 from log import blog
 from article import article
@@ -9,6 +11,7 @@ from manager import manager
 from webserver import webserver
 from webserver import usermanager
 from webserver import endpoints
+from dbconnect import database
 
 TARGET_INIT_REQ="https://tourism.opendatahub.bz.it/v1/Article?pagesize=1&removenullvalues=true&articletype=32"
 TARGET_REAL_REQ="https://tourism.opendatahub.bz.it/v1/Article?pagesize={}&removenullvalues=true&articletype=32"
@@ -49,13 +52,18 @@ def main():
     for rcp in manager.manager.recipe_list:
         rcp.build_img_cache(IMAGE_CACHE_DIR)
 
+    blog.info("Image cache setup completed..")
+    blog.info("Setting up sqlite DB..")
+    database.init_setup()
+
+    blog.info("Setting up branch usermanager..")
     # init usermanager
     userm = usermanager.usermanager()
 
     # register endpoints before webserver starts
     endpoints.register_get_endpoints()
     endpoints.register_post_endpoints()
-
+    
     blog.info("Starting webserver..")
     
     web_thread = threading.Thread(target=webserver.start_web_server, daemon=True, args=(LISTEN_ADDR, LISTEN_PORT))
@@ -68,4 +76,7 @@ def main():
     web_thread.join()
 
 if(__name__ == "__main__"):
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        blog.info("Exiting on KeyboardInterrupt")
