@@ -145,7 +145,10 @@ def add_rating(httphandler, form_data, post_data):
 
     # check if logged in       
     if(webauth.web_auth().validate_key(post_data["authkey"])):
-        database.add_rating(post_data["id"], post_data["author"], post_data["rating"])
+        if(not database.add_rating(post_data["id"], post_data["author"], post_data["rating"])):
+            httphandler.send_web_response(webstatus.SERV_FAILURE, "User {} already rated this article.".format(post_data["author"]))
+            return
+
         httphandler.send_web_response(webstatus.SUCCESS, "Rating added to database.")
     else:
         httphandler.send_web_response(webstatus.AUTH_FAILURE, "Invalid authentication key.")

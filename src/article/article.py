@@ -21,7 +21,7 @@ HTTP_HEADERS = {
 
 class article_detail():
 
-    def __init__(self, json_resp, languages):
+    def __init__(self, json_resp, languages, a_id):
         self.languages = languages
         self.title = { }
         self.ingredients = { }
@@ -49,7 +49,7 @@ class article_detail():
             
             self.time_required = time_pre_commit
             break
-       
+        
         self.author_name = "No author set."
 
         for lang in self.languages:
@@ -84,12 +84,12 @@ class article_detail():
                 pass
                 
             try:
-                self.recipe_text[lang] = json_resp["AdditionalArticleInfos"][lang]["Elements"]["zutat1"]
+                self.recipe_text[lang] = json_resp["AdditionalArticleInfos"][lang]["Elements"]["zubereitungstext"]
             except KeyError:
                 pass
+        
+        self.ratings = database.get_all_ratings_by_id(a_id)
 
-
-        #self.additional_text = additional_text
 
     def get_info_dict(self):
         return {
@@ -97,7 +97,8 @@ class article_detail():
             "title": self.title,
             "ingredients": self.ingredients,
             "recipetext": self.recipe_text,
-            "tipptext": self.tipp_text
+            "tipptext": self.tipp_text,
+            "ratings": self.ratings
         }
 
 
@@ -129,7 +130,6 @@ class article():
                 self.title[lang] = _title
                 self.description[lang] = _description
                 self.languages.append(lang)
-
     
 
     def get_info_dict(self):
@@ -142,10 +142,10 @@ class article():
         }
 
     def fetch_details(self):
-        blog.info("Passing request to ODH")
+        blog.info("Passing request to ODH: {}".format(self.api_url))
         odh_resp = json.loads(requests.get(self.api_url).text)
 
-        return article_detail(odh_resp, self.languages).get_info_dict() 
+        return article_detail(odh_resp, self.languages, self.id).get_info_dict() 
         
 
 

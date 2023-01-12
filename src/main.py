@@ -72,8 +72,12 @@ def main():
         blog.info("Webserver started. Waiting for requests.")
     except Exception as ex:
         blog.error("Webserver raised Exception: {}")
-    
+
+
+    database.get_all_ratings_by_id("asdf")
+
     web_thread.join()
+
 
 if(__name__ == "__main__"):
     try:
