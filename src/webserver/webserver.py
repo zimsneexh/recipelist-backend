@@ -74,7 +74,7 @@ class web_server(BaseHTTPRequestHandler):
     # send web response
     def send_web_response(self, status, payload):
         self.send_response(200)
-        self.send_header("Content-type", "text/html")
+        self.send_header("Content-type", "application/json")
         self.end_headers()
         
         self.write_answer_encoded(endpoints.webresponse(status, payload).json_str())
