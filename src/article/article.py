@@ -128,7 +128,11 @@ class article():
                 blog.warn("FIXUP: {} claims to provide lang {}, but doesn't.".format(self.id, lang))
             else:
                 self.title[lang] = _title
-                self.description[lang] = _description
+                if(_description is None):
+                    blog.warn("FIXUP: {} claims to provide lang {}, but does not provide description.".format(self.id, lang))
+                    self.description[lang] = "No description set"
+                else:
+                    self.description[lang] = _description
                 self.languages.append(lang)
     
 
