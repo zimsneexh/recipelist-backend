@@ -6,7 +6,7 @@ import re
 from manager import manager
 from branchweb import usermanager
 from dbconnect import database
-from log import blog
+import blog
 from branchweb import webserver
 import main
 

@@ -5,7 +5,7 @@ import os
 from queue import Queue
 from threading import Thread
 
-from log import blog
+import blog
 from article import article
 from manager import manager
 from dbconnect import database
@@ -23,6 +23,7 @@ def main():
     print("Rezept website backend")
     print()
     blog.initialize()
+    blog.enable_debug_level()
 
     blog.info("Sending initial webrequest with size=1..")
     num_req_rsp = requests.get(TARGET_INIT_REQ)

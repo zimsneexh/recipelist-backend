@@ -3,7 +3,7 @@ import re
 import time
 import json
 
-from log import blog
+import blog
 
 TARGET_REQ_URL = "https://duckduckgo.com/"
 TARGET_REQ_API_URL = "https://duckduckgo.com/i.js"

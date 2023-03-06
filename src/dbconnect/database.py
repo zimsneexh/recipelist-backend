@@ -1,7 +1,7 @@
 import sqlite3
 import os
 
-from log import blog
+import blog
 
 DB_FILE="rating.db"
 

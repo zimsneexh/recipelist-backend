@@ -4,7 +4,7 @@ import main
 import json
 
 from imagesearch import imagesearch
-from log import blog
+import blog
 from dbconnect import database
 
 HTTP_HEADERS = {
