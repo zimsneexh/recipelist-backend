@@ -8,10 +8,10 @@ from threading import Thread
 from log import blog
 from article import article
 from manager import manager
-from webserver import webserver
-from webserver import usermanager
-from webserver import endpoints
 from dbconnect import database
+from branchweb import webserver
+from branchweb import webauth
+from endpoints import endpoints
 
 TARGET_INIT_REQ="https://tourism.opendatahub.bz.it/v1/Article?pagesize=1&removenullvalues=true&articletype=32"
 TARGET_REAL_REQ="https://tourism.opendatahub.bz.it/v1/Article?pagesize={}&removenullvalues=true&articletype=32"
@@ -57,13 +57,13 @@ def main():
     database.init_setup()
 
     blog.info("Setting up branch usermanager..")
-    # init usermanager
-    userm = usermanager.usermanager()
-
+    webauth.web_auth.setup_user_manager()
+        
+    blog.info("Registering endpoints..")
     # register endpoints before webserver starts
-    endpoints.register_get_endpoints()
-    endpoints.register_post_endpoints()
-    
+    webserver.web_server.register_get_endpoints(endpoints.recipe_web_providers.get_get_providers())
+    webserver.web_server.register_post_endpoints(endpoints.recipe_web_providers.get_post_providers())
+
     blog.info("Starting webserver..")
     
     web_thread = threading.Thread(target=webserver.start_web_server, daemon=True, args=(LISTEN_ADDR, LISTEN_PORT))
