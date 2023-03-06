@@ -64,10 +64,10 @@ def main():
     webserver.web_server.register_get_endpoints(endpoints.recipe_web_providers.get_get_providers())
     webserver.web_server.register_post_endpoints(endpoints.recipe_web_providers.get_post_providers())
 
-    webserver.web_server["send_cors_headers"] = True
-    webserver.web_server["web_debug"] = True
-    webserver.web_server["logger_function_info"] = blog.web_log
-    webserver.web_server["logger_function_debug"] = blog.debug
+    webserver.WEB_CONFIG["send_cors_headers"] = True
+    webserver.WEB_CONFIG["web_debug"] = True
+    webserver.WEB_CONFIG["logger_function_info"] = blog.web_log
+    webserver.WEB_CONFIG["logger_function_debug"] = blog.debug
 
 
     blog.info("Starting webserver..")
