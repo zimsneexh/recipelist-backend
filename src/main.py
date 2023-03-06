@@ -58,17 +58,19 @@ def main():
 
     blog.info("Setting up branch usermanager..")
     webauth.web_auth.setup_user_manager()
-        
-    blog.info("Registering endpoints..")
-    # register endpoints before webserver starts
-    webserver.web_server.register_get_endpoints(endpoints.recipe_web_providers.get_get_providers())
-    webserver.web_server.register_post_endpoints(endpoints.recipe_web_providers.get_post_providers())
-
+    
     webserver.WEB_CONFIG["send_cors_headers"] = True
     webserver.WEB_CONFIG["web_debug"] = True
     webserver.WEB_CONFIG["logger_function_info"] = blog.web_log
     webserver.WEB_CONFIG["logger_function_debug"] = blog.debug
 
+
+    blog.info("Registering endpoints..")
+    # register endpoints before webserver starts
+    webserver.web_server.register_get_endpoints(endpoints.recipe_web_providers.get_get_providers())
+    webserver.web_server.register_post_endpoints(endpoints.recipe_web_providers.get_post_providers())
+
+  
 
     blog.info("Starting webserver..")
     
