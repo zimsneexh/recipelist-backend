@@ -8,6 +8,7 @@ from branchweb import usermanager
 from dbconnect import database
 import blog
 from branchweb import webserver
+from branchweb import webauth
 import main
 
 class recipe_web_providers():
@@ -46,6 +47,7 @@ class recipe_web_providers():
             httphandler.send_web_response(webserver.webstatus.MISSING_DATA, "Missing request data for authentication")
             return
         
+
         if(webauth.web_auth().validate_pw(post_data["user"], post_data["pass"])):
             blog.debug("Authentication succeeded.")
             key = webauth.web_auth().new_authorized_key()
