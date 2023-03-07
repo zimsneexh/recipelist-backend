@@ -187,7 +187,13 @@ class recipe_web_providers():
             httphandler.send_web_response(webserver.webstatus.MISSING_DATA, "No such article.")
             return
         
-        httphandler.send_web_response(webserver.webstatus.SUCCESS, art.fetch_details())
+        details = art.fetch_details()
+
+        # get imagelink
+        req_line = httphandler.headers._headers[0][1]
+        details["imagelink"] = "http://" + req_line + "/?getimage=" + art.id
+
+        httphandler.send_web_response(webserver.webstatus.SUCCESS, details)
 
     #
     # gets a list of recipes
