@@ -1,0 +1,6 @@
+[submodule "branchweb"]
+	path = branchweb
+	url = https://github.com/AcaciaLinux/branchweb
+[submodule "branchlog"]
+	path = branchlog
+	url = https://github.com/AcaciaLinux/branchlog
