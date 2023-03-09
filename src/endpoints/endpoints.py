@@ -211,7 +211,7 @@ class recipe_web_providers():
             rp = art.get_info_dict()
             rp["imagelink"] =  "http://" + req_line + "/?getimage=" + rp["id"]
             rp["avgrating"] = database.get_avg_by_id(art.id)
+            rp["ratingcount"] = len(database.get_all_ratings_by_id(art.id))
             recipe_list.append(rp)
-
 
         httphandler.send_web_response(webserver.webstatus.SUCCESS, recipe_list)
