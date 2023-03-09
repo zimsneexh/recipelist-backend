@@ -192,6 +192,7 @@ class recipe_web_providers():
         # get imagelink
         req_line = httphandler.headers._headers[0][1]
         details["imagelink"] = "http://" + req_line + "/?getimage=" + art.id
+        details["avgrating"] = database.get_avg_by_id(art.id)
 
         httphandler.send_web_response(webserver.webstatus.SUCCESS, details)
 
