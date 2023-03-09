@@ -48,6 +48,9 @@ def get_avg_by_id(oid):
 
     if(avg == (None,)):
         avg = 0
+    else:
+        avg = avg[0]
+
     return avg
 
 
