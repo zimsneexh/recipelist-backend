@@ -130,11 +130,14 @@ class recipe_web_providers():
 
         # check if logged in       
         if(webauth.web_auth().validate_key(post_data["authkey"])):
-            if(not database.add_rating(post_data["id"], post_data["author"], post_data["rating"])):
+            res = database.add_rating(post_data["id"], post_data["author"], post_data["rating"])
+                
+            if(res == -2):
                 httphandler.send_web_response(webserver.webstatus.SERV_FAILURE, "User {} already rated this article.".format(post_data["author"]))
-                return
-
-            httphandler.send_web_response(webserver.webstatus.SUCCESS, "Rating added to database.")
+            elif(res == -1):
+                httphandler.send_web_response(webserver.webstatus.SERV_FAILURE, "Invalid float".format(post_data["author"]))
+            else:
+                httphandler.send_web_response(webserver.webstatus.SUCCESS, "Rating added to database.")
         else:
             httphandler.send_web_response(webserver.webstatus.AUTH_FAILURE, "Invalid authentication key.")
 

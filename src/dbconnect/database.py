@@ -16,23 +16,23 @@ def init_setup():
         pass
 
 #
-# True on success, False on failure
+# True on success, -1 on ValueError, -2 on IntegrityError
 # 
 def add_rating(oid, author, rating):
     CONNECTION = sqlite3.connect(DB_FILE)
     cur = CONNECTION.cursor()
 
     try:
-        rating = int(rating)
+        rating = float(rating)
     except ValueError:
-        return False
+        return -1
 
     data = (oid, author, rating)
 
     try:
         cur.execute("INSERT INTO rating VALUES(?, ?, ?)", data)
     except sqlite3.IntegrityError:
-        return False
+        return -2
 
     CONNECTION.commit()
     return True
