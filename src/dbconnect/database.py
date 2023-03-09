@@ -63,5 +63,11 @@ def get_all_ratings_by_id(oid):
     res = cur.execute("SELECT author, rating FROM rating WHERE id = ?", (oid,))
    
     result = res.fetchall()
-    return result
 
+    _dict = { }
+
+    for res in result:
+        key, val = res
+        _dict[key] = val
+    
+    return _dict
