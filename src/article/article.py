@@ -7,6 +7,7 @@ from imagesearch import imagesearch
 import blog
 from dbconnect import database
 
+JPEG_MAGIC_BYTES = b'\xff\xd8\xff'
 HTTP_HEADERS = {
     'authority': 'duckduckgo.com',
     'accept': 'application/json, text/javascript, */*; q=0.01',
@@ -180,7 +181,19 @@ class article():
                 
                 with open(target_dir, "wb") as f:
                     f.write(web_rsp.content)
-                break
+                
+                # check if the file is a jpg
+                
+                with open(target_dir, "rb") as f:
+                    file_sig = f.read(3)
+                
+                if(file_sig == JPEG_MAGIC_BYTES):
+                    blog.info("File is a valid jpeg!")
+                    break
+                else:
+                    blog.error("Downloaded file is not a valid jpeg image. Using next image..")
+                    i = i + 1
+
             except Exception as ex:
                 blog.error("Exception raised while attempting to fetch data. Using next image..")
                 blog.error("Exception details: {}".format(ex))
